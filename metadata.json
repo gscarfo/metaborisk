@@ -1,0 +1,5 @@
+{
+  "name": "MetaboRisk Pro",
+  "description": "Applicazione professionale per la valutazione del rischio cardiometabolico (HOMA-IR, TG:HDL) con reportistica A4 e analisi AI.",
+  "requestFramePermissions": []
+}
