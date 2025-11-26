@@ -1,4 +1,5 @@
 import pool from './db';
+import { createHash } from 'crypto';
 
 export default async function handler(req: any, res: any) {
   const client = await pool.connect();
@@ -60,10 +61,13 @@ export default async function handler(req: any, res: any) {
     // 4. Seed Default Admin
     const adminCheck = await client.query("SELECT * FROM users WHERE username = 'admin'");
     if (adminCheck.rowCount === 0) {
+      // SHA-256 for 'admin123'
+      const adminHash = createHash('sha256').update('admin123').digest('hex');
+      
       await client.query(`
         INSERT INTO users (username, password_hash, role, is_active, first_name, last_name, title)
-        VALUES ('admin', 'admin123', 'admin', true, 'System', 'Admin', 'Dr.')
-      `);
+        VALUES ('admin', $1, 'admin', true, 'System', 'Admin', 'Dr.')
+      `, [adminHash]);
     }
 
     await client.query('COMMIT');

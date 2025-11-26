@@ -1,4 +1,9 @@
 import pool from './db';
+import { createHash } from 'crypto';
+
+const hashPassword = (password: string): string => {
+  return createHash('sha256').update(password).digest('hex');
+};
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
@@ -13,10 +18,21 @@ export default async function handler(req: any, res: any) {
       if (result.rowCount === 0) return res.status(401).json({ error: 'Credenziali non valide' });
 
       const user = result.rows[0];
-      if (user.password_hash !== password) return res.status(401).json({ error: 'Credenziali non valide' });
+      const hashedPassword = hashPassword(password);
+      
+      // Check password: match hash OR match plain text (legacy support)
+      const isValid = user.password_hash === hashedPassword || user.password_hash === password;
+      
+      if (!isValid) return res.status(401).json({ error: 'Credenziali non valide' });
+      
       if (!user.is_active) return res.status(403).json({ error: 'Account disattivato' });
       if (user.expires_at && new Date(user.expires_at) < new Date()) {
         return res.status(403).json({ error: 'Abbonamento scaduto' });
+      }
+
+      // If password was plain text, update it to hash for security
+      if (user.password_hash === password && user.password_hash !== hashedPassword) {
+        await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hashedPassword, user.id]);
       }
 
       return res.status(200).json({ 
@@ -41,11 +57,13 @@ export default async function handler(req: any, res: any) {
       const check = await pool.query('SELECT id FROM users WHERE username = $1', [username]);
       if (check.rowCount > 0) return res.status(400).json({ error: 'Nome utente già in uso' });
 
+      const hashedPassword = hashPassword(password);
+
       const result = await pool.query(`
         INSERT INTO users (username, password_hash, role, first_name, last_name, is_active, title)
         VALUES ($1, $2, 'user', $3, $4, true, 'Dr.')
         RETURNING *
-      `, [username, password, firstName, lastName]);
+      `, [username, hashedPassword, firstName, lastName]);
 
       const user = result.rows[0];
       return res.status(200).json({ 

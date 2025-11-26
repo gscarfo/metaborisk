@@ -53,6 +53,10 @@ export default async function handler(req: any, res: any) {
       const patient = req.body;
       const currentUserId = req.query.userId;
       
+      if (!currentUserId) {
+        return res.status(400).json({ error: 'Missing userId for saving patient' });
+      }
+      
       const client = await pool.connect();
       try {
         await client.query('BEGIN');

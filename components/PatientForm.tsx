@@ -3,6 +3,18 @@ import { Patient } from '../types';
 import { calculateBMI, calculateHOMA, calculateTGHDL } from '../utils/calculations';
 import { Save, X, Activity } from 'lucide-react';
 
+// Helper for safe UUID generation (works in insecure contexts)
+const generateUUID = () => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  // Fallback for environments where crypto.randomUUID is unavailable
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
 interface PatientFormProps {
   initialData?: Patient | null;
   onSave: (patient: Patient) => void;
@@ -55,7 +67,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, onSave, onCancel
     const tgHdlRatio = calculateTGHDL(tg, hdl);
 
     const newPatient: Patient = {
-      id: initialData?.id || crypto.randomUUID(),
+      id: initialData?.id || generateUUID(),
       createdAt: initialData?.createdAt || new Date().toISOString(),
       firstName: formData.firstName || '',
       lastName: formData.lastName || '',

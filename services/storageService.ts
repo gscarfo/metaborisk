@@ -2,6 +2,17 @@ import { Patient } from '../types';
 
 const STORAGE_KEY = 'metaborisk_patients';
 
+// Helper for safe UUID generation (works in insecure contexts)
+const generateUUID = () => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
 export const getPatients = async (currentUserId: string): Promise<Patient[]> => {
   try {
     const response = await fetch(`/api/patients?userId=${currentUserId}`);
@@ -35,7 +46,7 @@ export const savePatient = async (patient: Patient, currentUserId: string): Prom
   // LocalStorage Fallback
   const patients = await getPatients(currentUserId);
   const index = patients.findIndex(p => p.id === patient.id);
-  const patientToSave = { ...patient, id: patient.id || crypto.randomUUID() };
+  const patientToSave = { ...patient, id: patient.id || generateUUID() };
   
   let updatedPatients;
   if (index >= 0) {
