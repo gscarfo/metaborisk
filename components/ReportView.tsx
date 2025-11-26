@@ -2,7 +2,7 @@
 import React, { useRef, useState } from 'react';
 import { Patient, User } from '../types';
 import { interpretHOMA, interpretTGHDL, interpretBMI } from '../utils/calculations';
-import { Printer, ArrowLeft, BrainCircuit, Download, Sparkles, X, Activity } from 'lucide-react';
+import { Printer, ArrowLeft, BrainCircuit, Download, Sparkles, X, Activity, Mail, Phone, Calendar } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { generateClinicalSummary } from '../services/geminiService';
@@ -138,19 +138,19 @@ const ReportView: React.FC<ReportViewProps> = ({ patient, currentUser, onBack, o
       <div ref={reportRef} className="a4-page font-serif text-slate-800">
         
         {/* Header */}
-        <header className="flex justify-between items-center border-b-2 border-slate-100 pb-8 mb-10">
+        <header className="flex justify-between items-start border-b-2 border-slate-100 pb-8 mb-10">
           {/* Logo Section */}
           <div className="flex items-center gap-5">
-            <div className="bg-white p-3 rounded-2xl border-2 border-medical/20 text-medical shadow-sm print:shadow-none print:border-medical">
-              <Activity size={32} strokeWidth={2.5} />
+            <div className="bg-white p-4 rounded-2xl border-2 border-medical/20 text-medical shadow-sm print:shadow-none print:border-medical flex items-center justify-center">
+              <Activity size={38} strokeWidth={2.5} />
             </div>
-            <div className="flex flex-col">
-              <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight leading-none">
+            <div className="flex flex-col justify-center h-full">
+              <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight leading-none mb-1">
                 MetaboRisk <span className="text-medical">Pro</span>
               </h1>
-              <div className="flex items-center gap-2 mt-1">
-                <div className="h-0.5 w-8 bg-medical rounded-full"></div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+              <div className="flex items-center gap-2">
+                <div className="h-0.5 w-6 bg-medical rounded-full"></div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.25em]">
                   Valutazione Clinica
                 </p>
               </div>
@@ -158,18 +158,31 @@ const ReportView: React.FC<ReportViewProps> = ({ patient, currentUser, onBack, o
           </div>
 
           {/* Doctor Info Section */}
-          <div className="text-right">
-            <h2 className="text-xl font-serif font-bold text-slate-900">{doctorName}</h2>
-            <p className="text-xs font-bold text-white bg-medical px-2 py-0.5 rounded inline-block uppercase tracking-wider mb-3 print:text-medical print:bg-transparent print:p-0 print:border print:border-medical/0">
-              {doctorSpec}
-            </p>
-            
-            <div className="text-sm text-slate-500 space-y-1 font-sans flex flex-col items-end">
-              {currentUser?.email && <p className="flex items-center gap-2">{currentUser.email}</p>}
-              {currentUser?.phone && <p className="flex items-center gap-2">{currentUser.phone}</p>}
-              <p className="text-slate-400 text-xs mt-2 uppercase tracking-wide font-semibold">
-                Data Referto: <span className="text-slate-700">{today}</span>
+          <div className="flex flex-col items-end text-right">
+            <div className="mb-3">
+              <h2 className="text-xl font-serif font-bold text-slate-900 leading-tight">{doctorName}</h2>
+              <p className="text-xs font-bold text-medical uppercase tracking-widest mt-0.5">
+                {doctorSpec}
               </p>
+            </div>
+            
+            <div className="text-sm text-slate-500 font-sans flex flex-col items-end gap-1 border-r-2 border-slate-200 pr-3 mr-1 print:border-none print:pr-0 print:mr-0">
+              {currentUser?.email && (
+                <div className="flex items-center gap-2">
+                   <span className="text-slate-600 font-medium">{currentUser.email}</span>
+                   <Mail size={14} className="text-slate-400" />
+                </div>
+              )}
+              {currentUser?.phone && (
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-600 font-medium">{currentUser.phone}</span>
+                  <Phone size={14} className="text-slate-400" />
+                </div>
+              )}
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-slate-700 font-bold">{today}</span>
+                <Calendar size={14} className="text-slate-400" />
+              </div>
             </div>
           </div>
         </header>
