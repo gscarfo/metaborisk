@@ -15,6 +15,9 @@ export default defineConfig(({ mode }) => {
       'process.env.API_KEY': JSON.stringify(env.API_KEY),
       'process.env.DATABASE_URL': JSON.stringify(env.DATABASE_URL),
       'process.env.NODE_ENV': JSON.stringify(mode),
-    }
+    },
+    build: {
+      chunkSizeWarningLimit: 1600,
+    },
   };
 });
