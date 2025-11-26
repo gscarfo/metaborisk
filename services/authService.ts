@@ -13,22 +13,6 @@ export const login = async (username: string, password: string): Promise<{ user:
 
     const data = await response.json();
     if (!response.ok) {
-      // Fallback for demo admin if API/DB fails
-      if (username === 'admin' && password === 'admin123') {
-        return { 
-          user: { 
-            id: 'mock-admin', 
-            username: 'admin', 
-            role: 'admin', 
-            isActive: true, 
-            expiresAt: null, 
-            createdAt: new Date().toISOString(),
-            firstName: 'Amministratore',
-            lastName: 'Sistema',
-            title: 'Dr.'
-          } 
-        };
-      }
       return { user: null, error: data.error || 'Errore login' };
     }
 

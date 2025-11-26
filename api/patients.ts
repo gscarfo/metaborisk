@@ -1,4 +1,5 @@
 import pool from './db';
+import { randomUUID } from 'crypto';
 
 export default async function handler(req: any, res: any) {
   const { userId, id } = req.query;
@@ -66,7 +67,7 @@ export default async function handler(req: any, res: any) {
             birth_date = EXCLUDED.birth_date,
             gender = EXCLUDED.gender
           RETURNING id
-        `, [patient.id || crypto.randomUUID(), currentUserId, patient.firstName, patient.lastName, patient.birthDate, patient.gender]);
+        `, [patient.id || randomUUID(), currentUserId, patient.firstName, patient.lastName, patient.birthDate, patient.gender]);
 
         const patientId = patientRes.rows[0].id;
 
