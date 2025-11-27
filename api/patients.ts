@@ -57,8 +57,9 @@ export default async function handler(req: any, res: any) {
         return res.status(400).json({ error: 'Missing userId for saving patient' });
       }
       
-      const client = await pool.connect();
+      let client;
       try {
+        client = await pool.connect();
         await client.query('BEGIN');
         
         const patientRes = await client.query(`
@@ -98,10 +99,10 @@ export default async function handler(req: any, res: any) {
         await client.query('COMMIT');
         return res.status(200).json({ ...patient, id: patientId });
       } catch (e) {
-        await client.query('ROLLBACK');
+        if (client) await client.query('ROLLBACK');
         throw e;
       } finally {
-        client.release();
+        if (client) client.release();
       }
     }
 
@@ -112,7 +113,7 @@ export default async function handler(req: any, res: any) {
     }
 
   } catch (error: any) {
-    console.error(error);
+    console.error("API Error:", error);
     return res.status(500).json({ error: error.message });
   }
 }

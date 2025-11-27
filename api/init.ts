@@ -2,8 +2,10 @@ import pool from './db';
 import { createHash } from 'crypto';
 
 export default async function handler(req: any, res: any) {
-  const client = await pool.connect();
+  let client;
+  
   try {
+    client = await pool.connect();
     await client.query('BEGIN');
 
     // 1. Table: Users
@@ -72,9 +74,14 @@ export default async function handler(req: any, res: any) {
     await client.query('COMMIT');
     res.status(200).json({ message: "Database initialized successfully" });
   } catch (error: any) {
-    await client.query('ROLLBACK');
-    res.status(500).json({ error: error.message });
+    if (client) {
+      await client.query('ROLLBACK');
+    }
+    console.error("Database initialization error:", error);
+    res.status(500).json({ error: error.message || "Database connection failed" });
   } finally {
-    client.release();
+    if (client) {
+      client.release();
+    }
   }
 }
