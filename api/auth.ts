@@ -20,7 +20,6 @@ export default async function handler(req: any, res: any) {
       const user = result.rows[0];
       const hashedPassword = hashPassword(password);
       
-      // Check password: match hash OR match plain text (legacy support)
       const isValid = user.password_hash === hashedPassword || user.password_hash === password;
       
       if (!isValid) return res.status(401).json({ error: 'Credenziali non valide' });
@@ -30,7 +29,6 @@ export default async function handler(req: any, res: any) {
         return res.status(403).json({ error: 'Abbonamento scaduto' });
       }
 
-      // If password was plain text, update it to hash for security
       if (user.password_hash === password && user.password_hash !== hashedPassword) {
         await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hashedPassword, user.id]);
       }

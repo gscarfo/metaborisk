@@ -61,7 +61,6 @@ export default async function handler(req: any, res: any) {
       try {
         await client.query('BEGIN');
         
-        // Insert/Update Patient
         const patientRes = await client.query(`
           INSERT INTO patients (id, user_id, first_name, last_name, birth_date, gender)
           VALUES ($1, $2, $3, $4, $5, $6)
@@ -75,7 +74,6 @@ export default async function handler(req: any, res: any) {
 
         const patientId = patientRes.rows[0].id;
 
-        // Insert Assessment
         await client.query(`
           INSERT INTO assessments (
             patient_id, weight, height, ideal_weight, bmi,
