@@ -25,6 +25,9 @@ export const login = async (username: string, password: string): Promise<{ user:
 
 export const register = async (firstName: string, lastName: string, username: string, password: string): Promise<{ user: User | null; error?: string }> => {
   try {
+    // Attempt to initialize DB schema on register attempt as well (in case it's the first user)
+    await fetch('/api/init').catch(() => {});
+
     const response = await fetch('/api/auth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -35,6 +38,7 @@ export const register = async (firstName: string, lastName: string, username: st
     if (!response.ok) return { user: null, error: data.error };
     return { user: data.user };
   } catch (error) {
+    console.error("Register API error:", error);
     return { user: null, error: "Errore di connessione." };
   }
 };
